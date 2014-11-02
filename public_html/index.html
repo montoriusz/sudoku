@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--
+LEGAL NOTICE / NOTA PRAWNA
+Copyright (c) 2011 Paweł Motofa <montoriusz@montoriusz-it.pl>
+All Rights Reserved. / Wszelkie prawa zastrzeżone.
+
+All information contained herein is, and remains
+the property of Paweł Motofa. The intellectual and
+technical concepts contained herein are proprietary
+to Paweł Motofa and are subject of business secret.
+You DO NOT have premission to copy, reproduce, modify
+or redistribute this content or any part of it. 
+
+Cała informacja zawarta w tym pliku jest własnością
+Pawła Motofy. Koncepcje i idee zawarte w poniższym
+kodzie należą do Pawła Motofy i podlegają tajemnicy
+handlowej. Nie masz prawa kopiować, odtwarzać,
+modyfikować ani rozpowszechniać zawartości tego pliku
+ani żadnej jego części.
+
+-->
+<html ng-app="SudokuSolver">
+    <head>
+        <title>Sudoku Solver by montoriusz</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="js/angular.js/angular-csp.css">
+        <link type="text/css" rel="stylesheet" href="css/sudoku-solver.css">
+    </head>
+    <body>
+        <div ng-controller="MainCtrl">
+            <nav class="navbar navbar-default navbar-static-top" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <a class="navbar-brand">Sudoku Solver</a>
+                    </div>
+                    <div class="navbar-right">
+                    </div>
+                </div>
+            </nav>
+            <div class="container">
+                <div class="toolbar">
+                    <button ng-click="solve()" class="btn btn-success">Solve</button>
+                    <button ng-click="clear()" class="btn btn-danger">Clear</button>
+                </div>
+                <sudoku-grid ng-model="sudoku" control="sudokuControl"></sudoku-grid>
+            </div>
+        </div>
+        <script src="js/angular.js/angular.js"></script>
+        <script src="js/sudoku.js"></script>
+        <script src="js/sudoku-solver.js"></script>
+    </body>
+</html>

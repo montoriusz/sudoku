@@ -1,0 +1,92 @@
+/*
+LEGAL NOTICE / NOTA PRAWNA
+Copyright (c) 2011 Paweł Motofa <montoriusz@montoriusz-it.pl>
+All Rights Reserved. / Wszelkie prawa zastrzeżone.
+
+All information contained herein is, and remains
+the property of Paweł Motofa. The intellectual and
+technical concepts contained herein are proprietary
+to Paweł Motofa and are subject of business secret.
+You DO NOT have premission to copy, reproduce, modify
+or redistribute this content or any part of it. 
+
+Cała informacja zawarta w tym pliku jest własnością
+Pawła Motofy. Koncepcje i idee zawarte w poniższym
+kodzie należą do Pawła Motofy i podlegają tajemnicy
+handlowej. Nie masz prawa kopiować, odtwarzać,
+modyfikować ani rozpowszechniać zawartości tego pliku
+ani żadnej jego części.
+
+*/
+/* 
+    Created on : 2014-11-01, 17:05:02
+    Author     : montor
+*/
+
+
+table.sudoku-grid {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+table.sudoku-grid td {
+    border: 1px solid #888;
+    padding: 0;
+    /* width: 2em; */
+    padding: 0;
+}
+
+table.sudoku-grid input {
+    font-size: 28px;
+    width: 0.8em;
+    height: 0.8em;
+    /*border: 2px solid #fff;*/
+    border: none;
+    margin: 0;
+    padding: 0.3em;
+    text-align: center;
+    border-radius: 0;
+    box-shadow: none !important;
+    color: #252FE2;
+    display: block;
+}
+
+table.sudoku-grid input:focus {
+    background-color: #E2F0FF;
+    font-weight: bold;
+    /*border-color: #648BF2;*/
+}
+
+table.sudoku-grid input.invalid {
+    background-color: #FF4949;
+}
+
+table.sudoku-grid input.hl {
+    font-weight: bold;
+}
+
+table.sudoku-grid input.frozen {
+    color: #666;
+}
+
+table.sudoku-grid td.h1,
+table.sudoku-grid td.h4,
+table.sudoku-grid td.h7 {
+    border-left: 3px solid #000;
+}
+
+table.sudoku-grid td.h9 {
+    border-right: 3px solid #000;
+}
+
+table.sudoku-grid td.v1,
+table.sudoku-grid td.v4,
+table.sudoku-grid td.v7 {
+    border-top: 3px solid #000;
+}
+
+table.sudoku-grid td.v9 {
+    border-bottom-width: 3px;
+}
+
