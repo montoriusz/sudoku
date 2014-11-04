@@ -24,7 +24,8 @@ ani żadnej jego części.
         <title>Sudoku Solver by montoriusz</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
+        <!--<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">-->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
         <link type="text/css" rel="stylesheet" href="js/angular.js/angular-csp.css">
         <link type="text/css" rel="stylesheet" href="css/sudoku-solver.css">
     </head>
@@ -33,21 +34,44 @@ ani żadnej jego części.
             <nav class="navbar navbar-default navbar-static-top" role="navigation">
                 <div class="container">
                     <div class="navbar-header">
-                        <a class="navbar-brand">Sudoku Solver</a>
+                        <h1 class="page-title">Sudoku Solver <small>by montor</small></h1>
                     </div>
                     <div class="navbar-right">
                     </div>
                 </div>
             </nav>
             <div class="container">
-                <div class="toolbar">
-                    <button ng-click="solve()" class="btn btn-success">Solve</button>
-                    <button ng-click="clear()" class="btn btn-danger">Clear</button>
+                <div class="row">
+                    <div class="col-md-6">
+                        <sudoku-grid ng-model="sudoku"></sudoku-grid>
+                        <div class="text-right">
+                            {{sudoku.current.complete}} / 81
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb15">
+                            <button ng-click="solve()" class="btn btn-success">Solve</button>
+                            <button ng-click="generate()" class="btn btn-primary">Generate</button>
+                            <button ng-click="clear()" class="btn btn-danger">Clear</button>
+                            <button ng-click="debug()" class="btn btn-warning pull-right">Debug</button>
+                        </div>
+                        <div ng-show="!!diag" ng-bind-html="diag.message" class="alert" ng-class="diag && ('alert-' + diag.level )">
+                        </div>
+                    </div>
                 </div>
-                <sudoku-grid ng-model="sudoku" control="sudokuControl"></sudoku-grid>
+                
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="text-right">
+                            <small>All rights reserved / Wszelkie prawa zastrzeżone<br>&copy; Paweł Motofa</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <script src="js/angular.js/angular.js"></script>
+        <script src="js/angular.js/angular-sanitize.js"></script>
         <script src="js/sudoku.js"></script>
         <script src="js/sudoku-solver.js"></script>
     </body>

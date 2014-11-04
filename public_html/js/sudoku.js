@@ -21,15 +21,16 @@
 var Sudoku = (function() {
 
     function Sudoku(src) {
+        this.hash = Date.now().toString(36);
         this.grid = new Array(81);
         this.allow = new Array(81);
 
         if (src && src instanceof Sudoku) {
             this.parent   = src;
             this.mod      = src.mod;
+            //this.log      = src.log;
             this.passes   = src.passes;
             this.complete = src.complete;
-            this.log      = src.log;
             this.grid     = src.grid.slice(0);
             this.allow    = src.allow.slice(0);
         } else {
@@ -37,7 +38,7 @@ var Sudoku = (function() {
             this.updateMod();
             this.passes   = 0;
             this.complete = 0;
-            this.log = '';
+            //this.log = '';
             for (var i = 0; i < 81; i++) {
                 this.grid[i] = 0;
                 this.allow[i] = 511;
@@ -137,6 +138,26 @@ var Sudoku = (function() {
             }
         }
     };
+    
+    Sudoku.prototype.clearCell = function(c) {
+        var i, gridCopy = this.grid;
+        if (this.grid[i] === 0) {
+            return;
+        }
+        this.complete = 0;
+        //this.passes = 0;
+        this.grid = new Array(81);
+        for (i = 0; i < 81; i++) {
+            this.grid[i] = 0;
+            this.allow[i] = 511;
+        }
+        this.updateMod();
+        for (i = 0; i < 81; i++) {
+            if (i !== c && gridCopy[i] !== 0) {
+                this.setCell(i, gridCopy[i]);
+            }
+        }
+    };
 
     Sudoku.prototype.solveStraight = function(steps) {
         var complete_before;
@@ -205,7 +226,7 @@ var Sudoku = (function() {
                 if (!(tryOn instanceof Sudoku)) {
                     tryOn = new Sudoku(this);
                 }
-                this.setCell(c, v);
+                tryOn.setCell(c, v);
                 tryOn.solveStraight();
             } catch (ex) {
                 return false;
