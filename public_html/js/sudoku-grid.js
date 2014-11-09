@@ -1,5 +1,4 @@
 /* 
- * LEGAL NOTICE / NOTA PRAWNA
  * Copyright (c) 2011 Paweł Motofa <montoriusz@montoriusz-it.pl>
  * All Rights Reserved. / Wszelkie prawa zastrzeżone.
  * 

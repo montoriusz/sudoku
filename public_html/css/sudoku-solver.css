@@ -1,26 +1,8 @@
 /*
-LEGAL NOTICE / NOTA PRAWNA
+
 Copyright (c) 2011 Paweł Motofa <montoriusz@montoriusz-it.pl>
 All Rights Reserved. / Wszelkie prawa zastrzeżone.
 
-All information contained herein is, and remains
-the property of Paweł Motofa. The intellectual and
-technical concepts contained herein are proprietary
-to Paweł Motofa and are subject of business secret.
-You DO NOT have premission to copy, reproduce, modify
-or redistribute this content or any part of it. 
-
-Cała informacja zawarta w tym pliku jest własnością
-Pawła Motofy. Koncepcje i idee zawarte w poniższym
-kodzie należą do Pawła Motofy i podlegają tajemnicy
-handlowej. Nie masz prawa kopiować, odtwarzać,
-modyfikować ani rozpowszechniać zawartości tego pliku
-ani żadnej jego części.
-
-*/
-/* 
-    Created on : 2014-11-01, 17:05:02
-    Author     : montor
 */
 
 .mt5  { margin-top: 5px; }
@@ -173,23 +155,3 @@ table.sudoku-grid td.nb {
 .modal-header .glyphicon {
     vertical-align: text-bottom;
 }
-
-/*.modal-backdrop { z-index: 1001; }
-
-.modal-backdrop.am-fade {
-  opacity: .7;
-  transition: opacity .15s linear;
-}
-.modal-backdrop.am-fade.ng-enter {
-    opacity: 0;
-}
-.modal-backdrop.am-fade.ng-enter.ng-enter-active {
-    opacity: .7;
-}
-.modal-backdrop.am-fade.ng-leave {
-    opacity: .7;
-}
-.modal-backdrop.am-fade.ng-leave.ng-leave-active {
-    opacity: 0;
-}
-*/

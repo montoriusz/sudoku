@@ -1,21 +1,6 @@
 /* 
- * LEGAL NOTICE / NOTA PRAWNA
  * Copyright (c) 2011 Paweł Motofa <montoriusz@montoriusz-it.pl>
  * All Rights Reserved. / Wszelkie prawa zastrzeżone.
- * 
- * All information contained herein is and remains
- * the property of Paweł Motofa. The intellectual and
- * technical concepts contained herein are proprietary
- * to Paweł Motofa and are subject of business secret.
- * You DO NOT have premission to copy, reproduce, modify
- * or redistribute this content or any part of it. 
- * 
- * Cała informacja zawarta w tym pliku jest własnością
- * Pawła Motofy. Koncepcje i idee zawarte w poniższym
- * kodzie należą do Pawła Motofy i podlegają tajemnicy
- * handlowej. Nie masz prawa kopiować, odtwarzać,
- * modyfikować ani rozpowszechniać zawartości tego pliku
- * ani żadnej jego części.
  * 
  */
 var Sudoku = (function() {
@@ -59,23 +44,15 @@ var Sudoku = (function() {
         this.allow = new Array(81);
 
         if (src && src instanceof Sudoku) {
-            if (saveParent) {
-                this.parent = src;
-            } else {
-                this.parent = null;
-            }
+            this.parent   = saveParent ? src : null;
             this.mod      = src.mod;
-            //this.log      = src.log;
-            //this.passes   = src.passes;
             this.complete = src.complete;
             this.grid     = src.grid.slice(0);
             this.allow    = src.allow.slice(0);
         } else {
             this.parent   = null;
             this.updateMod();
-            //this.passes   = 0;
             this.complete = 0;
-            //this.log = '';
             for (var i = 0; i < 81; i++) {
                 this.grid[i] = 0;
                 this.allow[i] = 511;
@@ -151,7 +128,7 @@ var Sudoku = (function() {
                 if (cbv[i].length === 1) // only possible cell for value j
                     results.push({cell: cbv[i][0], value: i + 1});
         }
-        // results may be redundant (or conflicting?)
+        // results may be redundant
         for (var i = 0; i < results.length; ++i)
             this.setCell(results[i].cell, results[i].value);
     }
@@ -161,14 +138,6 @@ var Sudoku = (function() {
             r = 1 + Math.floor(yx / 9),
             c = 1 + (yx % 9);
         return  'row ' + r + ', col ' + c;
-    }
-    
-    function mask2Str(v) {
-        var s = '';
-        for (var i = 0; i < 9; i++)
-            if (v & (1 << i))
-                s += i + 1;
-        return s;
     }
 
     Sudoku.prototype.updateMod = function() {
@@ -218,7 +187,6 @@ var Sudoku = (function() {
             return;
         }
         this.complete = 0;
-        //this.passes = 0;
         this.grid = new Array(81);
         for (i = 0; i < 81; i++) {
             this.grid[i] = 0;
@@ -239,7 +207,6 @@ var Sudoku = (function() {
         }
         search = search || 3;
         do {
-            //this.passes++;
             if (steps !== null)
                 steps--;
             complete_before = this.complete;
@@ -264,8 +231,6 @@ var Sudoku = (function() {
                 }
             }
         }
-
-        //console.log('Strike out ' + p.length  +  ' (' + this.hash + ')');
 
         while (p.length) {
             if (random) {
@@ -318,38 +283,6 @@ var Sudoku = (function() {
         return s;
     };
 
-    Sudoku.prototype.debug = function () {
-        var w = window.open('', 'debug', 'location=no,status=yes,width=900,height=500,resizable=yes,scrollbars=yes');
-        w.document.open();
-        w.document.write('<html><head><style type="text/css">'
-                + 'table { border-collapse: collapse; border: 3px solid #000; } '
-                + 'td { padding: 2px; font-family: Courier New; border: 1px solid #000; } td:empty { background: #000; padding: 1px; }'
-                + '</style></head></<body>');
-        var s = '<table border="1">';
-        for (var i = 0; i < 81; i++) {
-            if (i % 27 === 0 && i !== 0)
-                s += '<tr><td colspan="11"></td></tr>';
-            if (i % 9 === 0)
-                s += "<tr>";
-            s += '<td align="center">';
-            if (this.grid[i])
-                s += '<font size="5"><b>' + this.grid[i] + '</b></font>';
-            if (this.allow[i] !== -1)
-                s += mask2Str(this.allow[i]);
-            s += '</td>';
-            if (i % 9 === 8)
-                s += '</tr>';
-            else if (i % 3 === 2)
-                s += '<td></td>';
-        }
-        s += "</table>";
-        w.document.write(s);
-        //w.document.write('<p><b>Log:</b><br/>' + this.log + '</p>');
-        //w.document.write('<b>Passes:</b> ' + this.passes + '<br />');
-        w.document.write('<b>Complete:</b> ' + this.complete + ' / 81<br />');
-        w.document.write("</body></html>");
-        w.document.close();
-    };
     
     return Sudoku;
 })();
