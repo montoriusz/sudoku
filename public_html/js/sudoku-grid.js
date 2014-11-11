@@ -79,11 +79,10 @@
             return idx;
         }
         
-        function link(scope, element, attrs /*, ngModel */) {
-            var input, i;
+        function link(scope, element) {
             
             function highlight(val, target) {
-                var input;
+                var input, i;
                 if (!val) {
                     scope.inputs.removeClass('hl');
                 } else {

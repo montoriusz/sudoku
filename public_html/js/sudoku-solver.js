@@ -43,9 +43,31 @@
         return stopwatch;
     });
     
+    ss.directive('mnMenuSelect', function() {
+        return {
+            restrict: 'A',
+            transclude: true,
+            require: ['ngModel'],
+            scope: {
+                value: '=mnMenuSelect',
+                caption: '@'
+            },
+            template: '<a href="" ng-click="ngModelCtrl.$setViewValue(value)">\
+                            <i class="glyphicon glyphicon-ok"\
+                               ng-class="ngModelCtrl.$viewValue == value || \'notselected\'"></i>\
+                               {{caption}}\
+                        </a>',
+            link: function(scope, element, attrs, ctrls) {
+                scope.ngModelCtrl = ctrls[0];
+            }
+        };
+    });
+    
     ss.controller('MainCtrl', ['$scope', 'stopwatch', 'Sudoku', '$modal',
     function($scope, stopwatch, Sudoku, $modal) {
-            
+        
+        $scope.difficulty = 3;
+        
         $scope.clear = function() {
             $scope.sudoku = { current: new Sudoku() };
             $scope.diag = null;
@@ -73,7 +95,7 @@
                         if (straight) {
                             current.solveStraight();
                         } else {
-                            current = current.solveDeep();
+                            current = current.solveDeep() || current;
                         }
                     });
                     $scope.sudoku.current = current;
@@ -105,8 +127,9 @@
             }
         };
         
-        $scope.generate = function(diff) {
-            var s, t, level = 1, maxSteps = 3, diff_text;
+        $scope.generate = function() {
+            var s, t, level = 1, maxSteps = 3, diff_text,
+                diff = +$scope.difficulty;
             switch (diff) {
                 case 1: level = 1, maxSteps = 3; diff_text = 'Easy'; break;
                 //case 2: level = 2, maxSteps = 4; diff_text = 'Medium'; break;
@@ -152,6 +175,5 @@
         
         $scope.clear();
     }]);
-    
     
 })();

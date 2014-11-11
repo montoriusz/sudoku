@@ -17,44 +17,48 @@
             <nav class="navbar navbar-default navbar-static-top" role="navigation">
                 <div class="container">
                     <div class="navbar-header">
-                        <h1 class="page-title"><small>montor's</small> Sudoku Solver</h1>
+                        <h1 class="page-title">
+                            <small>montor's</small>
+                            Sudoku Solver
+                        </h1>
                     </div>
                 </div>
             </nav>
             <div class="container">
                 <div class="row">
                     <div class="col-md-6 col-md-push-6">
-                        <div class="mb15">
-                            <button ng-click="solve()" class="btn btn-success">
-                                <i class="glyphicon glyphicon-ok"></i>
-                                Solve
-                            </button>
-                            <div class="btn-group" dropdown>
-                                <button ng-click="generate(3)" type="button" class="btn btn-primary">
-                                    <i class="glyphicon glyphicon-cog"></i>
-                                    Generate
+                        <div class="mb10">
+                            <div class="toolbar-flex">
+                                <button ng-click="solve()" class="btn btn-success">
+                                    <i class="glyphicon glyphicon-ok"></i>
+                                    Solve
                                 </button>
-                                <button type="button" class="btn btn-primary dropdown-toggle">
-                                    <span class="caret"></span>
-                                    <span class="sr-only">Choose max difficulty</span>
+                                <div class="btn-group" dropdown>
+                                    <button ng-click="generate()" type="button" class="btn btn-primary">
+                                        <i class="glyphicon glyphicon-cog"></i>
+                                        Generate
+                                    </button>
+                                    <button type="button" class="btn btn-primary dropdown-toggle">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Choose max difficulty</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-header">Choose max difficulty</li>
+                                        <li mn-menu-select="1" ng-model="difficulty" caption="Easy"></li>
+                                        <li mn-menu-select="3" ng-model="difficulty" caption="Medium"></li>
+                                        <li mn-menu-select="4" ng-model="difficulty" caption="Hard"></li>
+                                    </ul>
+                                </div>
+                                <button ng-click="clear()" class="btn btn-danger">
+                                    <i class="glyphicon glyphicon-remove"></i>
+                                    Clear
                                 </button>
-                                <ul class="dropdown-menu">
-                                    <li class="dropdown-header">Choose max difficulty</li>
-                                    <li><a ng-click="generate(1)" href="">Easy</a></li>
-                                    <!--<li><a ng-click="generate(2)" href="">Easy</a></li>
-                                    <li><a ng-click="generate(3)" href="">Medium</a></li>-->
-                                    <li><a ng-click="generate(4)" href="">Hard</a></li>
-                                    <!--<li class="disabled"><a>Evil</a></li>-->
-                                </ul>
+                                <div class="stretch"></div>
+                                <button ng-click="peep()" class="btn btn-warning">
+                                    <i class="glyphicon glyphicon-eye-open"></i>
+                                    Reveal possible values
+                                </button>
                             </div>
-                            <button ng-click="clear()" class="btn btn-danger">
-                                <i class="glyphicon glyphicon-remove"></i>
-                                Clear
-                            </button>
-                            <button ng-click="peep()" class="btn btn-warning pull-right">
-                                <i class="glyphicon glyphicon-eye-open"></i>
-                                Reveal possible values
-                            </button>
                         </div>
                         <div class="alert" ng-class="diag && ('alert-' + diag.level )"
                             ng-show="!!diag" ng-bind-html="diag.message">

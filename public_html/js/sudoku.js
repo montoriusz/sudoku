@@ -7,6 +7,31 @@ var Sudoku = (function() {
 
     var log2 = Math.log(2);
 
+    function Sudoku(src, saveParent) {
+        if (!Sudoku.areas) {
+            genAreas();
+        }
+        this.hash = Date.now().toString(36);
+        this.grid = new Array(81);
+        this.allow = new Array(81);
+
+        if (src && src instanceof Sudoku) {
+            this.parent   = saveParent ? src : null;
+            this.mod      = src.mod;
+            this.complete = src.complete;
+            this.grid     = src.grid.slice(0);
+            this.allow    = src.allow.slice(0);
+        } else {
+            this.parent   = null;
+            this.updateMod();
+            this.complete = 0;
+            for (var i = 0; i < 81; i++) {
+                this.grid[i] = 0;
+                this.allow[i] = 511;
+            }
+        }
+    }
+    
     function genAreas () {
         var n, b, i, j, list, list2;
         Sudoku.areas = {
@@ -34,31 +59,6 @@ var Sudoku = (function() {
             }
         }
     }
-
-    function Sudoku(src, saveParent) {
-        if (!Sudoku.areas) {
-            genAreas();
-        }
-        this.hash = Date.now().toString(36);
-        this.grid = new Array(81);
-        this.allow = new Array(81);
-
-        if (src && src instanceof Sudoku) {
-            this.parent   = saveParent ? src : null;
-            this.mod      = src.mod;
-            this.complete = src.complete;
-            this.grid     = src.grid.slice(0);
-            this.allow    = src.allow.slice(0);
-        } else {
-            this.parent   = null;
-            this.updateMod();
-            this.complete = 0;
-            for (var i = 0; i < 81; i++) {
-                this.grid[i] = 0;
-                this.allow[i] = 511;
-            }
-        }
-    }
     
     Sudoku.fromString = function(str) {
         var i, s, v;
@@ -76,11 +76,7 @@ var Sudoku = (function() {
     };
     
     Sudoku.prototype.toString = function() {
-        var i, str = '';
-        for (i = 0; i < 81; ++i) {
-            str += this.grid[i].toString();
-        }
-        return str;
+        return this.grid.join('');
     };
     
     function applyMask(cells, mask) {
@@ -102,16 +98,22 @@ var Sudoku = (function() {
         var
             i, j, v, sv, 
             results = new Array(),
-            cbv = new Array(); // cells by value
+            cbv = new Array(), // cells by value
+            err;
 
-        for (i = 0; i < 9; ++i)
+        for (i = 0; i < 9; ++i) {
             cbv[i] = new Array();
+        }
         for (i = 0; i < cells.length; ++i) {
             v = this.allow[cells[i]];
-            if (v === -1)
+            if (v === -1){
                 continue;
-            if (v === 0)
-                throw new Error("No possibilities at " + formatPos(cells[i]));
+            }
+            if (v === 0) {
+                err = new Error("No possibilities at " + formatPos(cells[i]));
+                err.sudokuData = { cell: cells[i], value: null };
+                throw err;
+            }
             if (search & 2) {
                 sv = Math.log(v) / log2;
                 if (sv % 1 === 0) // only possible value for cell i
@@ -145,11 +147,13 @@ var Sudoku = (function() {
     };
     
     Sudoku.prototype.isDescendant = function(d) {
-        if (!(d instanceof Sudoku))
+        if (!(d instanceof Sudoku)) {
             throw new Error("Invalid object type.");
+        }
         while (d.parent instanceof Sudoku) {
-            if (d.parent === this)
+            if (d.parent === this) {
                 return true;
+            }
             d = d.parent;
         }
         return false;
@@ -164,20 +168,27 @@ var Sudoku = (function() {
     };
 
     Sudoku.prototype.setCell = function (c, val) {
+        var err;
         val = +val;
-        if (isNaN(val)) {
-            throw new Error("Invalid cell value to set.");
+        if (!val || isNaN(val)) {
+            err = new Error("Invalid cell value to set at " + formatPos(c) + ".");
+            err.sudokuData = { cell: c, value: val };
+            throw err;
         }
-        if (this.grid[c] === val)
+        if (this.grid[c] === val) {
             return;
+        }
         var bit = 1 << (val - 1);
-        if (this.grid[c] !== 0 || (this.allow[c] & bit) === 0)
-            throw new Error("Setting value " + val + " at " + formatPos(c) + " failed."); // return false
+        if (this.grid[c] !== 0 || (this.allow[c] & bit) === 0) {
+            err = new Error("Setting value " + val + " at " + formatPos(c) + " failed."); // return false
+            err.sudokuData = { cell: c, value: val };
+            throw err;
+        }
         this.grid[c] = val;
         this.allow[c] = -1;
-        // mark allowed cell values
-        markCellAreas.call(this, c, bit);
         this.complete++;
+        // Mark allowed cell values
+        markCellAreas.call(this, c, bit);
         this.updateMod();
     };
     
@@ -202,27 +213,26 @@ var Sudoku = (function() {
 
     Sudoku.prototype.solveStraight = function(search, steps) {
         var complete_before;
-        if (!steps) {
-            steps = null;
-        }
+        steps  = steps || null;
         search = search || 3;
         do {
-            if (steps !== null)
-                steps--;
             complete_before = this.complete;
             for (var i = 0; i < 9; i++) {
                 solveArea.call(this, Sudoku.areas.rows[i], search);
                 solveArea.call(this, Sudoku.areas.cols[i], search);
                 solveArea.call(this, Sudoku.areas.boxes[i], search);
             }
+            if (steps !== null) --steps;
         } while (this.complete > complete_before && (steps === null || steps > 0));
         return this.complete === 81 ? this : false;
     };
 
-    Sudoku.prototype.strike = function (callback, random) {
+    Sudoku.prototype.strike = function (testCallback, random) {
         var
             c, v,
             p = new Array(), trial = null;
+    
+        // Possible strikes
         for (c = 0; c < 81; ++c) {
             if (this.grid[c] === 0) {
                 for (v = 0; v < 9; ++v) {
@@ -232,6 +242,7 @@ var Sudoku = (function() {
             }
         }
 
+        // Strike
         while (p.length) {
             if (random) {
                 c = p.splice(Math.floor(Math.random() * p.length), 1)[0];
@@ -241,16 +252,17 @@ var Sudoku = (function() {
             trial = new Sudoku(this);
             try {
                 trial.setCell(c[0], c[1]);
-                trial = callback.call(this, trial, c[0], c[1]);
+                trial = testCallback.call(trial, c[0], c[1], this);
                 if (trial) {
                     return trial;
                 }
-            } catch (ex) {
-            }
-            if (random === 1) {
-                return false;
-            } else if (random) {
+            } catch (ex) { }
+            
+            if (random) {
                 --random;
+                if (random === 0) {
+                    return false;
+                }
             }
         }
         
@@ -258,22 +270,18 @@ var Sudoku = (function() {
     };
     
     Sudoku.prototype.solveDeep = function() {
-        return this.solveStraight() || this.strike(function(trial) {
-            return trial.solveStraight()
-                    || (trial.complete < 63 ? null : trial.strike(function(trial2) {
-                        return trial2.solveStraight();
-                    }));
-        }) || this;
+        return this.solveStraight() || this.strike(function() {
+            return this.solveStraight() || this.complete < 63 && this.strike(function() {
+                return this.solveStraight();
+            });
+        });
     };
     
     Sudoku.generate = function(level, maxSteps) {
         var s = new Sudoku(), found = false;
         do {
-            if (!s.strike(function(trial, cell, value) {
-                trial.solveStraight(level, maxSteps);
-                if (trial.complete === 81) {
-                    found = true;
-                }
+            if (!s.strike(function(cell, value) {
+                found = this.solveStraight(level, maxSteps);
                 s.setCell(cell, value);
                 return true;
             }, 9)) {
@@ -282,7 +290,6 @@ var Sudoku = (function() {
         } while (!found);
         return s;
     };
-
     
     return Sudoku;
 })();
