@@ -1,7 +1,7 @@
 /*
 
-Copyright (c) 2011 Paweł Motofa <montoriusz@montoriusz-it.pl>
-All Rights Reserved. / Wszelkie prawa zastrzeżone.
+Copyright (c) 2011 Pawe?? Motofa <montoriusz@montoriusz-it.pl>
+All Rights Reserved. / Wszelkie prawa zastrze??one.
 
 */
 
@@ -111,7 +111,7 @@ table.sudoku-grid input {
     text-align: center;
     border-radius: 0;
     box-shadow: none !important;
-    color: #252FE2;
+    color: #008E12;
     display: block;
     box-sizing: content-box;
     line-height: 0.8em;
@@ -132,7 +132,8 @@ table.sudoku-grid input.hl {
 }
 
 table.sudoku-grid input.frozen {
-    color: #666;
+    color: #444;
+    background-color: #f6f6f6;
 }
 
 table.sudoku-grid td.lb {

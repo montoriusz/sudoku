@@ -44,9 +44,7 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li class="dropdown-header">Choose max difficulty</li>
-                                        <li mn-menu-select="1" ng-model="difficulty" caption="Easy"></li>
-                                        <li mn-menu-select="3" ng-model="difficulty" caption="Medium"></li>
-                                        <li mn-menu-select="4" ng-model="difficulty" caption="Hard"></li>
+                                        <li ng-repeat="(key, params) in generationLevels" mn-menu-select="key" ng-model="$parent.difficulty" caption="{{params.name}}"></li>
                                     </ul>
                                 </div>
                                 <button ng-click="clear()" class="btn btn-danger">

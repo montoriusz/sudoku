@@ -20,25 +20,42 @@
 
     ss.factory('stopwatch', function() { 
         var
-            hasPerf = !!(window.performance && performance.now),
-            runs = {};
+            hasPerf = !!(window.performance && performance.now);
+            
+        function now() {
+            return hasPerf ? performance.now() : new Date();
+        }
         
         var stopwatch = function(fn) {
             var t;
-            if (hasPerf) {
-                t = performance.now();
-                fn();
-                t = (performance.now() - t).toFixed(3);
-            } else {
-                t = new Date();
-                fn();
-                t = new Date() - t;
-            }
-            return t;
+            t = now();
+            fn();
+            t = now() - t;
+            return hasPerf ? t.toFixed(3) : t;
         };
         
-        // TODO: stopwatch.start = function(name) { };
-        // TODO: stopwatch.stop = function(name) { };
+        stopwatch.start = function(sw) {
+            if (!sw) {
+                sw = { total: 0, start: now() };
+            } else if (!sw.start) {
+                sw.start = now();
+            } else {
+                throw new Error("Stopwatch is already running.");
+            }
+            return sw;
+        };
+        
+        stopwatch.pause = function(sw) {
+            if (sw && sw.start) {
+                sw.total += now() - sw.start;
+                sw.start = null;
+            } else {
+                throw new Error("Stopwatch is not running.");
+            }
+            return hasPerf ? sw.total.toFixed(3) : sw.total;
+        };
+        
+        stopwatch.stop = stopwatch.pause;
         
         return stopwatch;
     });
@@ -47,12 +64,12 @@
         return {
             restrict: 'A',
             transclude: true,
-            require: ['ngModel'],
+            require: [ 'ngModel' ],
             scope: {
                 value: '=mnMenuSelect',
                 caption: '@'
             },
-            template: '<a href="" ng-click="ngModelCtrl.$setViewValue(value)">\
+            template: '<a href="" ng-click="ngModelCtrl.$setViewValue(value, $event)">\
                             <i class="glyphicon glyphicon-ok"\
                                ng-class="ngModelCtrl.$viewValue == value || \'notselected\'"></i>\
                                {{caption}}\
@@ -66,11 +83,30 @@
     ss.controller('MainCtrl', ['$scope', 'stopwatch', 'Sudoku', '$modal',
     function($scope, stopwatch, Sudoku, $modal) {
         
+        function genStarsHtml(n) {
+            var starsHtml = '';
+            while (n > 0) {
+                starsHtml += '<i class="glyphicon glyphicon-star"></i>';
+                --n;
+            }
+            return starsHtml;
+        }
+        
         $scope.difficulty = 3;
+        $scope.generationLevels = {
+            1: { level: 1, maxSteps: 3, name: 'Easy', stars: 1 },
+            3: { level: 2, maxSteps: 4, name: 'Medium', stars: 2 },
+            4: { level: 3, maxSteps: 0, name: 'Hard', stars: 3 }
+        };
         
         $scope.clear = function() {
             $scope.sudoku = { current: new Sudoku() };
             $scope.diag = null;
+            $scope.game = {
+                revealUsed: 0,
+                lastGeneration: null,
+                timeStart: Date.now() 
+            };
         };
        
         $scope.solve = function(straight) {
@@ -115,39 +151,42 @@
                     }
                     $scope.diag.message += '<br>';
                     if (t) {
-                        $scope.diag.message += ' <span class="label">Time: <b>' + t + 'ms</b></span>';
+                        $scope.diag.message += ' <span class="label"><i class="glyphicon glyphicon-time"></i> <b>' + t + 'ms</b></span>';
                     }
                     //$scope.diag.message += ' <span class="label">Passes: <b>' + current.passes + '</b></span>';
                 } catch (e) {
                     $scope.diag = {
                         level: 'danger',
-                        message: '<b>Grid is incorrect.</b> Solving failed. (' + (e.message || e) + ')'
+                        message: '<b>Grid is incorrect.</b> (' + (e.message || e) + ')'
                     };
                 }
             }
         };
         
         $scope.generate = function() {
-            var s, t, level = 1, maxSteps = 3, diff_text,
-                diff = +$scope.difficulty;
-            switch (diff) {
-                case 1: level = 1, maxSteps = 3; diff_text = 'Easy'; break;
-                //case 2: level = 2, maxSteps = 4; diff_text = 'Medium'; break;
-                case 3: level = 2, maxSteps = 4; diff_text = 'Medium'; break;
-                case 4: level = 3, maxSteps = 0; diff_text = 'Hard'; break;
+            var s, t, params;
+            params = $scope.generationLevels[$scope.difficulty];
+            if (!params) {
+                throw new Error('Invalid generation level');
             }
             t = stopwatch(function() {
-                s = Sudoku.generate(level, maxSteps);
+                s = Sudoku.generate(params.level, params.maxSteps);
             });
+            
             $scope.diag = {
                 level: 'info',
-                message: '<b>Random grid generated.</b><br>'
-                    + ' <span class="label">Time: <b>' + t + 'ms</b></span>'
-                    + ' <span class="label">Max. difficulty: <b>' + diff_text + '</b></span>'
+                message: '<b>Random puzzle generated.</b><br>'
+                    + ' <span class="label"><i class="glyphicon glyphicon-time"></i> <b>' + t + 'ms</b></span>'
+                    + ' <span class="label">' + genStarsHtml(params.stars) + '</span> '
                     //+ ' <span class="label">Attempts: <b>' + attempt + '</b></span>'
             };
             $scope.sudoku.current = null;
             $scope.sudoku.base = s;
+            $scope.game = {
+                revealUsed: 0,
+                difficulty: $scope.difficulty,
+                timeStart: Date.now() 
+            };
         };
         
         $scope.peep = function() {            
@@ -155,20 +194,38 @@
                 scope: $scope,
                 templateUrl: 'peep-modal.html'
             });
+            $scope.game.revealUsed = ($scope.game.revealUsed || 0) + 1;
         };
         
         $scope.changed = function(evt) {
-            var m, s;
             if (evt.type === 'set' && $scope.sudoku.current.complete === 81) {
-                $scope.diag = {
+                $scope.showSuccess();
+            }
+        };
+        
+        $scope.showSuccess = function() {
+            var m, s, genParams;
+            $scope.diag = {
                     level: 'success',
                     message: '<b>Congrats!</b> You solved the puzzle!'
-                };
-                if ($scope.sudoku.base) {
-                    s = (Date.now() - $scope.sudoku.base.mod) / 1000;
+            };
+            if ($scope.sudoku.base) {
+                genParams = $scope.game.difficulty && $scope.generationLevels[$scope.game.difficulty];
+                if (genParams) {
+                    $scope.diag.message += '<br><span class="label">' + genStarsHtml(genParams.stars) + '</span> ';
+                }
+                $scope.diag.message += '<span class="label">';
+                if ($scope.game.revealUsed) {
+                    $scope.diag.message += '<i class="glyphicon glyphicon-eye-open"></i> <b>Help used ' + $scope.game.revealUsed + ' times</b>';
+                } else {
+                    $scope.diag.message += '<i class="glyphicon glyphicon-eye-close"></i>';
+                }
+                $scope.diag.message += '</span> ';
+                if ($scope.game.timeStart) {
+                    s = (Date.now() - $scope.game.timeStart) / 1000;
                     m = Math.floor(s / 60);
                     s = Math.floor(s % 60);
-                    $scope.diag.message += '<br><span class="label">Time: <b>' + m + 'm ' + s + 's </b></span>';
+                    $scope.diag.message += '<span class="label"><i class="glyphicon glyphicon-time"></i> <b>' + m + 'm ' + s + 's </b></span> ';
                 }
             }
         };

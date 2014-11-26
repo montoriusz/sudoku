@@ -68,7 +68,7 @@ var Sudoku = (function() {
         s = new Sudoku();
         for (i = 0; i < 81; ++i) {
             v = +s[i];
-            if (!isNaN(v) && v >= 1 && v <= 9) {
+            if (v >= 1 && v <= 9) {
                 s.setCell(i, v);
             }
         }
@@ -194,18 +194,19 @@ var Sudoku = (function() {
     
     Sudoku.prototype.clearCell = function(c) {
         var i, gridCopy = this.grid;
-        if (this.grid[i] === 0) {
+        if (this.grid[c] === 0) {
             return;
         }
         this.complete = 0;
         this.grid = new Array(81);
+        gridCopy[c] = 0;
         for (i = 0; i < 81; i++) {
             this.grid[i] = 0;
             this.allow[i] = 511;
         }
         this.updateMod();
         for (i = 0; i < 81; i++) {
-            if (i !== c && gridCopy[i] !== 0) {
+            if (gridCopy[i] !== 0) {
                 this.setCell(i, gridCopy[i]);
             }
         }
@@ -227,7 +228,7 @@ var Sudoku = (function() {
         return this.complete === 81 ? this : false;
     };
 
-    Sudoku.prototype.strike = function (testCallback, random) {
+    Sudoku.prototype.guess = function (testCallback, random) {
         var
             c, v,
             p = new Array(), trial = null;
@@ -258,11 +259,8 @@ var Sudoku = (function() {
                 }
             } catch (ex) { }
             
-            if (random) {
-                --random;
-                if (random === 0) {
-                    return false;
-                }
+            if (random && --random === 0) {
+                return false;
             }
         }
         
@@ -270,24 +268,27 @@ var Sudoku = (function() {
     };
     
     Sudoku.prototype.solveDeep = function() {
-        return this.solveStraight() || this.strike(function() {
-            return this.solveStraight() || this.complete < 63 && this.strike(function() {
+        return this.solveStraight() || this.guess(function() {
+            // Narrowing search space: second guess only if there's <= 18 cells left
+            return this.solveStraight() || this.complete > 63 && this.guess(function() {
                 return this.solveStraight();
             });
         });
     };
     
     Sudoku.generate = function(level, maxSteps) {
-        var s = new Sudoku(), found = false;
+        var s = new Sudoku(), solution = false;
         do {
-            if (!s.strike(function(cell, value) {
-                found = this.solveStraight(level, maxSteps);
+            // Trying some random guesses (9 seems to be optimal, wondering why ;)
+            if (!s.guess(function(cell, value) {
+                // Continue if there is a (maybe incomplete) solution
+                solution = this.solveStraight(level, maxSteps);
                 s.setCell(cell, value);
                 return true;
             }, 9)) {
                 s = new Sudoku();
             }
-        } while (!found);
+        } while (!solution || solution.complete < 81);
         return s;
     };
     
