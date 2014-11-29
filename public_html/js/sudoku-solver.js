@@ -83,13 +83,15 @@
     ss.controller('MainCtrl', ['$scope', 'stopwatch', 'Sudoku', '$modal',
     function($scope, stopwatch, Sudoku, $modal) {
         
-        function genStarsHtml(n) {
-            var starsHtml = '';
+        var game;
+        
+        function starsHtml(n) {
+            var html = '';
             while (n > 0) {
-                starsHtml += '<i class="glyphicon glyphicon-star"></i>';
+                html += '<i class="glyphicon glyphicon-star"></i>';
                 --n;
             }
-            return starsHtml;
+            return html;
         }
         
         $scope.difficulty = 3;
@@ -99,10 +101,12 @@
             4: { level: 3, maxSteps: 0, name: 'Hard', stars: 3 }
         };
         
+        $scope.starsHtml = starsHtml;
+        
         $scope.clear = function() {
             $scope.sudoku = { current: new Sudoku() };
             $scope.diag = null;
-            $scope.game = {
+            game = {
                 revealUsed: 0,
                 lastGeneration: null,
                 timeStart: Date.now() 
@@ -112,15 +116,9 @@
         $scope.solve = function(straight) {
             var t;
             if ($scope.sudoku.current.complete === 0) {
-                $scope.diag = {
-                    level: 'warning',
-                    message: '<b>Grid is empty.</b> Input a puzzle to be solved or generate a random one.'
-                };
+                $scope.diag = { message: 'grid-empty' };
             } else if ($scope.sudoku.current.complete === 81) {
-                $scope.diag = {
-                    level: 'info',
-                    message: '<b>Grid is already complete.</b>'
-                };
+                $scope.diag = { message: 'grid-already-complete' };
             } else {
                 try {
                     var
@@ -136,28 +134,20 @@
                     });
                     $scope.sudoku.current = current;
                     if (!current || current.complete < 81) {
-                        $scope.diag = {
-                            level: 'warning',
-                            message: '<b>Can\'t solve.</b> Given puzzle may have multiple solutions...'
-                        };
+                        $scope.diag = { message: 'cannot-solve' };
                     } else {
                         $scope.diag = {
-                            level: 'success',
-                            message: '<b>Successfully solved!</b>'
+                            message: 'solve-success',
+                            time: t && (t + 'ms') || null
                         };
                         if (!$scope.sudoku.base) {
                             $scope.sudoku.base = base;
                         }
                     }
-                    $scope.diag.message += '<br>';
-                    if (t) {
-                        $scope.diag.message += ' <span class="label"><i class="glyphicon glyphicon-time"></i> <b>' + t + 'ms</b></span>';
-                    }
-                    //$scope.diag.message += ' <span class="label">Passes: <b>' + current.passes + '</b></span>';
                 } catch (e) {
                     $scope.diag = {
-                        level: 'danger',
-                        message: '<b>Grid is incorrect.</b> (' + (e.message || e) + ')'
+                        message: 'grid-incorrect',
+                        error: e.message || e
                     };
                 }
             }
@@ -174,15 +164,13 @@
             });
             
             $scope.diag = {
-                level: 'info',
-                message: '<b>Random puzzle generated.</b><br>'
-                    + ' <span class="label"><i class="glyphicon glyphicon-time"></i> <b>' + t + 'ms</b></span>'
-                    + ' <span class="label">' + genStarsHtml(params.stars) + '</span> '
-                    //+ ' <span class="label">Attempts: <b>' + attempt + '</b></span>'
+                message: 'puzzle-generated',
+                time: t && (t + 'ms') || null,
+                difficulty: $scope.difficulty
             };
             $scope.sudoku.current = null;
             $scope.sudoku.base = s;
-            $scope.game = {
+            game = {
                 revealUsed: 0,
                 difficulty: $scope.difficulty,
                 timeStart: Date.now() 
@@ -194,7 +182,7 @@
                 scope: $scope,
                 templateUrl: 'peep-modal.html'
             });
-            $scope.game.revealUsed = ($scope.game.revealUsed || 0) + 1;
+            game.revealUsed = (game.revealUsed || 0) + 1;
         };
         
         $scope.changed = function(evt) {
@@ -204,29 +192,17 @@
         };
         
         $scope.showSuccess = function() {
-            var m, s, genParams;
-            $scope.diag = {
-                    level: 'success',
-                    message: '<b>Congrats!</b> You solved the puzzle!'
-            };
-            if ($scope.sudoku.base) {
-                genParams = $scope.game.difficulty && $scope.generationLevels[$scope.game.difficulty];
-                if (genParams) {
-                    $scope.diag.message += '<br><span class="label">' + genStarsHtml(genParams.stars) + '</span> ';
-                }
-                $scope.diag.message += '<span class="label">';
-                if ($scope.game.revealUsed) {
-                    $scope.diag.message += '<i class="glyphicon glyphicon-eye-open"></i> <b>Help used ' + $scope.game.revealUsed + ' times</b>';
-                } else {
-                    $scope.diag.message += '<i class="glyphicon glyphicon-eye-close"></i>';
-                }
-                $scope.diag.message += '</span> ';
-                if ($scope.game.timeStart) {
-                    s = (Date.now() - $scope.game.timeStart) / 1000;
-                    m = Math.floor(s / 60);
-                    s = Math.floor(s % 60);
-                    $scope.diag.message += '<span class="label"><i class="glyphicon glyphicon-time"></i> <b>' + m + 'm ' + s + 's </b></span> ';
-                }
+            var m, s;
+            $scope.diag = { message: 'user-solved' };
+            if (game && $scope.sudoku.base) {
+                s = (Date.now() - game.timeStart) / 1000;
+                m = Math.floor(s / 60);
+                s = Math.floor(s % 60);
+                $scope.diag.game = {
+                    difficulty: game.difficulty || null,
+                    revealUsed: game.revealUsed,
+                    time: m + 'm ' + s + 's'
+                };
             }
         };
         

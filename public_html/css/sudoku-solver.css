@@ -79,6 +79,7 @@ table.sudoku-grid td > .v {
     height: 36px;
     text-align: center;
     display: block;
+    color: #aaa;
 }
 
 table.sudoku-grid td > .a {
@@ -177,6 +178,7 @@ table.sudoku-grid td.nb {
     background-color: #fff;
     color: #666;
     font-weight: normal;
+    display: inline-block;
 }
 
 .modal-header .glyphicon {

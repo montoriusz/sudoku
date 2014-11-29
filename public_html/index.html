@@ -27,6 +27,8 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-6 col-md-push-6">
+                        
+                        <!-- Buttons -->
                         <div class="mb10">
                             <div class="toolbar-flex">
                                 <button ng-click="solve()" class="btn btn-success">
@@ -58,19 +60,92 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="alert" ng-class="diag && ('alert-' + diag.level )"
-                            ng-show="!!diag" ng-bind-html="diag.message">
+                        <!-- END Buttons -->
+                        
+                        <!-- Messages -->
+                        
+                        <div ng-switch="diag && diag.message" class="ng-cloak">
+                            <div ng-switch-when="grid-empty" class="alert alert-warning">
+                                <b>Grid is empty.</b> Input a puzzle to be solved or generate a random one.
+                            </div>
+                            <div ng-switch-when="grid-already-complete" class="alert alert-info">
+                                <b>Grid is already complete.</b>
+                            </div>
+                            <div ng-switch-when="cannot-solve" class="alert alert-warning">
+                                <b>Can't solve.</b> Given puzzle may have multiple solutions...
+                            </div>
+                            <div ng-switch-when="solve-success" class="alert alert-success">
+                                <b>Successfully solved!</b><br>
+                                <span ng-show="diag.time" class="label"
+                                      tooltip="Algorithm solve time"
+                                      tooltip-placement="bottom">
+                                    <i class="glyphicon glyphicon-time"></i>
+                                    <b ng-bind="diag.time"></b>
+                                </span>
+                            </div>
+                            <div ng-switch-when="grid-incorrect" class="alert alert-danger">
+                                <b>Grid is incorrect.</b> ({{diag.error}})
+                            </div>
+                            <div ng-switch-when="puzzle-generated" class="alert alert-info">
+                                <b>Random puzzle generated.</b><br>
+                                <span ng-show="diag.time" class="label"
+                                      tooltip="Puzzle generation time"
+                                      tooltip-placement="bottom">
+                                    <i class="glyphicon glyphicon-time"></i>
+                                    <b ng-bind="diag.time"></b>
+                                </span>
+                                <span class="label"
+                                      ng-bind-html="starsHtml(generationLevels[diag.difficulty].stars)"
+                                      tooltip="Difficulty: {{ generationLevels[diag.difficulty].name }}"
+                                      tooltip-placement="bottom">
+                                </span>
+                            </div>
+                            <div ng-switch-when="user-solved" class="alert alert-success">
+                                <b>Congrats!</b> You solved the puzzle!<br>
+                                <span ng-if="diag.game">
+                                    <span class="label"
+                                          tooltip="Your solve time"
+                                          tooltip-placement="bottom">
+                                        <i class="glyphicon glyphicon-time"></i>
+                                        <b ng-bind="diag.game.time"></b>
+                                    </span>
+                                    <span class="label"
+                                          ng-bind-html="starsHtml(generationLevels[diag.game.difficulty].stars)"
+                                          tooltip="Difficulty: {{ generationLevels[diag.game.difficulty].name }}"
+                                          tooltip-placement="bottom">
+                                    </span>
+                                    <span class="label" ng-show="diag.game.revealUsed"
+                                          tooltip="Reveal used {{ diag.game.revealUsed }} time(s)"
+                                          tooltip-placement="bottom">
+                                        <i class="glyphicon glyphicon-eye-open"></i>
+                                        &times; {{ diag.game.revealUsed }}
+                                    </span>
+                                    <span class="label" ng-hide="diag.game.revealUsed"
+                                          tooltip="Reveal not used"
+                                          tooltip-placement="bottom">
+                                        <i class="glyphicon glyphicon-eye-close"></i>
+                                    </span>
+                                </span>
+                            </div>
                         </div>
+                        <!-- END Messages -->
                     </div>
+                    
+                    <!-- Grid -->
+                    
                     <div class="col-md-6 col-md-pull-6">
                         <div class="main-puzzle">
                             <mn-sudoku-grid ng-model="sudoku" on-change="changed(event)"></mn-sudoku-grid>
                         </div>
                     </div>
+                    <!-- END Grid -->
                 </div>
                 
                 <hr>
-                <div class="row">
+                
+                <!-- Footer -->
+                
+                <footer class="row">
                     <div class="col-md-12 text-right">
                         <small>
                             All rights reserved / Wszelkie prawa zastrzeżone
@@ -82,7 +157,7 @@
                             <a href="https://github.com/montoriusz/sudoku" target="_blank">View source on Github</a>
                         </small>
                     </div>
-                </div>
+                </footer>
             </div>
         </div>
         <script type="text/ng-template" id="peep-modal.html">
