@@ -93,7 +93,7 @@
                     this.clearValue(idx);
                     grid_changed = this.setValue(idx, value);
                     this.inputTimes[idx] = Date.now();
-                    this.highlight(value, input);
+                    this.highlight(value, idx);
                     scope.$apply(function() {
                         (grid_changed === true) && scope.onChange({
                             event: { type: 'set', cell: idx, value: value }
@@ -114,7 +114,7 @@
                 if (input.value) {
                     input.value = '';
                     this.clearValue(idx);
-                    this.highlight(false, input);
+                    this.highlight(false, idx);
                     scope.$apply(function() {
                         scope.onChange({
                             event: { type: 'unset', cell: idx, value: null }
@@ -132,7 +132,7 @@
             idx = targetInput(evt.target);
             if (idx !== false) {
                 cur_val = (evt.type === 'focusin' || evt.type === 'focus') ? this.inputs.eq(idx).val() : false;
-                this.highlight(cur_val, evt.target);
+                this.highlight(cur_val, idx);
             }
         }
         
@@ -200,15 +200,23 @@
             ], onValuesChange.bind(this));
         }
         
-        GridCtrl.prototype.highlight = function(val, target) {
-            var input, i;
-            if (!val) {
-                this.inputs.removeClass('hl');
-            } else {
+        GridCtrl.prototype.highlight = function(val, targetIdx) {
+            var input, areas, i, k;
+            this.inputs.removeClass('hb').removeClass('hl');
+            if (val) {
                 for (i = 0; i < this.inputs.length; ++i) {
                     input = this.inputs.eq(i);
-                    if (input.val() == val) {
+                    if (input.val() == val || i === targetIdx) {
                         this.inputs.eq(i).addClass('hl');
+                    }
+                }
+            } else {
+                if (typeof targetIdx === 'number') {
+                    areas = Sudoku.cellAreas(targetIdx);
+                    for (k in areas) if (k !== 'box') {
+                        for (i = 0; i < areas[k].length; ++i) /*if (areas[k][i] !== targetIdx)*/ {
+                            this.inputs.eq(areas[k][i]).addClass('hb');
+                        }
                     }
                 }
             }
@@ -224,7 +232,9 @@
                     .val(v)
                     .prop('readonly', !!v)
                     .toggleClass('frozen', v)
-                    .removeClass('invalid');
+                    .removeClass('invalid')
+                    .removeClass('hl')
+                    .removeClass('hb');
             }
         };
         

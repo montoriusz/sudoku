@@ -70,7 +70,7 @@
                 caption: '@'
             },
             template: '<a href="" ng-click="ngModelCtrl.$setViewValue(value, $event)">\
-                            <i class="glyphicon glyphicon-ok"\
+                            <i class="fa fa-check"\
                                ng-class="ngModelCtrl.$viewValue == value || \'notselected\'"></i>\
                                {{caption}}\
                         </a>',
@@ -88,7 +88,7 @@
         function starsHtml(n) {
             var html = '';
             while (n > 0) {
-                html += '<i class="glyphicon glyphicon-star"></i>';
+                html += '<i class="fa fa-star"></i> ';
                 --n;
             }
             return html;

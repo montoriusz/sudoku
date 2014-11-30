@@ -5,12 +5,13 @@
 -->
 <html ng-app="SudokuSolver">
     <head>
-        <title>montor's Sudoku Solver</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="css/font-awesome.min.css">
         <link type="text/css" rel="stylesheet" href="js/angular.js/angular-csp.css">
         <link type="text/css" rel="stylesheet" href="css/sudoku-solver.css">
+        <title>montor's Sudoku Solver</title>
     </head>
     <body>
         <div ng-controller="MainCtrl">
@@ -32,12 +33,12 @@
                         <div class="mb10">
                             <div class="toolbar-flex">
                                 <button ng-click="solve()" class="btn btn-success">
-                                    <i class="glyphicon glyphicon-ok"></i>
+                                    <i class="fa fa-check"></i>
                                     Solve
                                 </button>
                                 <div class="btn-group" dropdown>
                                     <button ng-click="generate()" type="button" class="btn btn-primary">
-                                        <i class="glyphicon glyphicon-cog"></i>
+                                        <i class="fa fa-cog"></i>
                                         Generate
                                     </button>
                                     <button type="button" class="btn btn-primary dropdown-toggle">
@@ -49,14 +50,22 @@
                                         <li ng-repeat="(key, params) in generationLevels" mn-menu-select="key" ng-model="$parent.difficulty" caption="{{params.name}}"></li>
                                     </ul>
                                 </div>
-                                <button ng-click="clear()" class="btn btn-danger">
-                                    <i class="glyphicon glyphicon-remove"></i>
-                                    Clear
-                                </button>
+                                <div class="btn-group">
+                                    <button ng-click="reset()" class="btn btn-danger">
+                                        <i class="fa fa-eraser"></i>
+                                        Reset
+                                    </button>
+                                    <button ng-click="clear()" class="btn btn-danger"
+                                            tooltip="Clear all"
+                                            tooltip-placement="bottom">
+                                        <i class="fa fa-remove"></i>
+                                    </button>
+                                </div>
                                 <div class="stretch"></div>
-                                <button ng-click="peep()" class="btn btn-warning">
-                                    <i class="glyphicon glyphicon-eye-open"></i>
-                                    Reveal possible values
+                                <button ng-click="peep()" class="btn btn-warning"
+                                        tooltip="Reveal possible values"
+                                        tooltip-placement="bottom">
+                                    <i class="fa fa-eye"></i>
                                 </button>
                             </div>
                         </div>
@@ -75,38 +84,42 @@
                                 <b>Can't solve.</b> Given puzzle may have multiple solutions...
                             </div>
                             <div ng-switch-when="solve-success" class="alert alert-success">
-                                <b>Successfully solved!</b><br>
-                                <span ng-show="diag.time" class="label"
-                                      tooltip="Algorithm solve time"
-                                      tooltip-placement="bottom">
-                                    <i class="glyphicon glyphicon-time"></i>
-                                    <b ng-bind="diag.time"></b>
-                                </span>
+                                <b>Successfully solved!</b>
+                                <div class="clearfix">
+                                    <span ng-show="diag.time" class="label"
+                                          tooltip="Algorithm solve time"
+                                          tooltip-placement="bottom">
+                                        <i class="fa fa-clock-o"></i>
+                                        <b ng-bind="diag.time"></b>
+                                    </span>
+                                </div>
                             </div>
                             <div ng-switch-when="grid-incorrect" class="alert alert-danger">
                                 <b>Grid is incorrect.</b> ({{diag.error}})
                             </div>
                             <div ng-switch-when="puzzle-generated" class="alert alert-info">
-                                <b>Random puzzle generated.</b><br>
-                                <span ng-show="diag.time" class="label"
-                                      tooltip="Puzzle generation time"
-                                      tooltip-placement="bottom">
-                                    <i class="glyphicon glyphicon-time"></i>
-                                    <b ng-bind="diag.time"></b>
-                                </span>
-                                <span class="label"
-                                      ng-bind-html="starsHtml(generationLevels[diag.difficulty].stars)"
-                                      tooltip="Difficulty: {{ generationLevels[diag.difficulty].name }}"
-                                      tooltip-placement="bottom">
-                                </span>
+                                <b>Random puzzle generated.</b>
+                                <div class="clearfix">
+                                    <span ng-show="diag.time" class="label"
+                                          tooltip="Puzzle generation time"
+                                          tooltip-placement="bottom">
+                                        <i class="fa fa-clock-o"></i>
+                                        <b ng-bind="diag.time"></b>
+                                    </span>
+                                    <span class="label"
+                                          ng-bind-html="starsHtml(generationLevels[diag.difficulty].stars)"
+                                          tooltip="Difficulty: {{ generationLevels[diag.difficulty].name }}"
+                                          tooltip-placement="bottom">
+                                    </span>
+                                </div>
                             </div>
                             <div ng-switch-when="user-solved" class="alert alert-success">
                                 <b>Congrats!</b> You solved the puzzle!<br>
-                                <span ng-if="diag.game">
+                                <span ng-if="diag.game" class="clearfix">
                                     <span class="label"
                                           tooltip="Your solve time"
                                           tooltip-placement="bottom">
-                                        <i class="glyphicon glyphicon-time"></i>
+                                        <i class="fa fa-clock-o"></i>
                                         <b ng-bind="diag.game.time"></b>
                                     </span>
                                     <span class="label"
@@ -117,13 +130,13 @@
                                     <span class="label" ng-show="diag.game.revealUsed"
                                           tooltip="Reveal used {{ diag.game.revealUsed }} time(s)"
                                           tooltip-placement="bottom">
-                                        <i class="glyphicon glyphicon-eye-open"></i>
+                                        <i class="fa fa-eye"></i>
                                         &times; {{ diag.game.revealUsed }}
                                     </span>
                                     <span class="label" ng-hide="diag.game.revealUsed"
                                           tooltip="Reveal not used"
                                           tooltip-placement="bottom">
-                                        <i class="glyphicon glyphicon-eye-close"></i>
+                                        <i class="fa fa-eye-slash"></i>
                                     </span>
                                 </span>
                             </div>
@@ -167,7 +180,7 @@
                         <span aria-hidden="true">&times;</span>
                         <span class="sr-only">Close</span>
                     </button>
-                    <i class="glyphicon glyphicon-eye-open mr10"></i>
+                    <i class="fa fa-eye mr10"></i>
                     Possible values
                 </h3>
             </div>

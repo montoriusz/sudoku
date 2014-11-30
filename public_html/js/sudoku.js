@@ -60,6 +60,14 @@ var Sudoku = (function() {
         }
     }
     
+    Sudoku.cellAreas = function(c) {
+        return {
+            row: Sudoku.areas.rows[Math.floor(c / 9)],
+            col: Sudoku.areas.cols[Math.floor(c % 9)],
+            box: Sudoku.areas.boxes[Math.floor(c / 27) * 3 + Math.floor(c / 3) % 3]
+        };
+    };
+    
     Sudoku.fromString = function(str) {
         var i, s, v;
         if (typeof str !== 'string' || str.length !== 81) {
@@ -88,10 +96,11 @@ var Sudoku = (function() {
     }
     
     function markCellAreas(c, bit) {
+        var k, areas = Sudoku.cellAreas(c);
         bit = ~bit;
-        applyMask.call(this, Sudoku.areas.rows[Math.floor(c / 9)], bit);
-        applyMask.call(this, Sudoku.areas.cols[Math.floor(c % 9)], bit);
-        applyMask.call(this, Sudoku.areas.boxes[Math.floor(c / 27) * 3 + Math.floor(c / 3) % 3], bit);
+        for (k in areas) {
+            applyMask.call(this, areas[k], bit);
+        }
     }
     
     function solveArea(cells, search) {

@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2011 Pawe?? Motofa <montoriusz@montoriusz-it.pl>
+Copyright (c) 2011 Paweł Motofa <montoriusz@montoriusz-it.pl>
 All Rights Reserved. / Wszelkie prawa zastrze??one.
 
 */
@@ -40,11 +40,11 @@ All Rights Reserved. / Wszelkie prawa zastrze??one.
 }
 
 /* mnMenuSelect directive >>> */
-.dropdown-menu li[mn-menu-select] i.glyphicon {
+.dropdown-menu li[mn-menu-select] i {
     margin-left: -6px;
     margin-right: 6px;
 }
-[mn-menu-select] i.glyphicon.notselected {
+[mn-menu-select] i.notselected {
     visibility: hidden;
 }
 /* <<< mnMenuSelect directive*/
@@ -112,29 +112,36 @@ table.sudoku-grid input {
     text-align: center;
     border-radius: 0;
     box-shadow: none !important;
-    color: #008E12;
+    color: #007BC7;
     display: block;
     box-sizing: content-box;
     line-height: 0.8em;
 }
 
 table.sudoku-grid input:focus {
-    background-color: #E2F0FF;
+    //background-color: #E2F0FF;
+    outline: 4px solid #FF6B00;
+    outline-offset: -1px;
     font-weight: bold;
     /*border-color: #648BF2;*/
-}
-
-table.sudoku-grid input.invalid {
-    background-color: #FF4949;
-}
-
-table.sudoku-grid input.hl {
-    font-weight: bold;
 }
 
 table.sudoku-grid input.frozen {
     color: #444;
     background-color: #f6f6f6;
+}
+
+table.sudoku-grid input.hl {
+    font-weight: bold;
+    background-color: #FFFFB0;
+}
+
+table.sudoku-grid input.hb {
+    background-color: #FFFFD8;
+}
+
+table.sudoku-grid input.invalid {
+    background-color: #FF4949;
 }
 
 table.sudoku-grid td.lb {
@@ -179,6 +186,8 @@ table.sudoku-grid td.nb {
     color: #666;
     font-weight: normal;
     display: inline-block;
+    float: left;
+    margin-right: 4px;
 }
 
 .modal-header .glyphicon {
