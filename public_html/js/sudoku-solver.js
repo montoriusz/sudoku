@@ -112,6 +112,10 @@
                 timeStart: Date.now() 
             };
         };
+        
+        $scope.reset = function() {
+            $scope.sudoku.current = null;
+        };
        
         $scope.solve = function(straight) {
             var t;
