@@ -39,14 +39,14 @@
                                 <div class="btn-group" dropdown>
                                     <button ng-click="generate()" type="button" class="btn btn-primary">
                                         <i class="fa fa-cog"></i>
-                                        Generate
+                                        New puzzle
                                     </button>
                                     <button type="button" class="btn btn-primary dropdown-toggle">
                                         <span class="caret"></span>
-                                        <span class="sr-only">Choose max difficulty</span>
+                                        <span class="sr-only">Choose difficulty</span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li class="dropdown-header">Choose max difficulty</li>
+                                        <li class="dropdown-header">Choose difficulty</li>
                                         <li ng-repeat="(key, params) in generationLevels" mn-menu-select="key" ng-model="$parent.difficulty" caption="{{params.name}}"></li>
                                     </ul>
                                 </div>

@@ -189,7 +189,7 @@
             };
             $scope.sudoku.current = null;
             $scope.sudoku.base = s;
-            $http.post(collectUrl + '?action=generation', {
+            send('generation', {
                 grid: s.toString(),
                 time: t || null,
                 params: params
