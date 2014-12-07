@@ -14,6 +14,8 @@
         'ngSanitize', /*'ngAnimate', 'mgcrea.ngStrap',*/ 'ui.bootstrap', 'mnSudokuGrid'
     ]);
     
+    ss.constant('collectUrl', 'http://montoriusz-it.pl/sudoku/collect.php');
+    
     ss.factory('Sudoku', [ function() {
         return Sudoku;
     }]);
@@ -80,10 +82,18 @@
         };
     });
     
-    ss.controller('MainCtrl', ['$scope', 'stopwatch', 'Sudoku', '$modal',
-    function($scope, stopwatch, Sudoku, $modal) {
+    ss.controller('MainCtrl', ['$scope', '$http', 'collectUrl', 'stopwatch', 'Sudoku', '$modal',
+    function($scope, $http, collectUrl, stopwatch, Sudoku, $modal) {
         
         var game;
+        
+        function startGame() {
+            game = {
+                revealUsed: 0,
+                difficulty: $scope.difficulty,
+                timeStart: Date.now() 
+            };
+        }
         
         function starsHtml(n) {
             var html = '';
@@ -92,6 +102,10 @@
                 --n;
             }
             return html;
+        }
+        
+        function send(action, data) {
+            $http.post(collectUrl + '?action=' + action, data);
         }
         
         $scope.difficulty = 3;
@@ -115,6 +129,7 @@
         
         $scope.reset = function() {
             $scope.sudoku.current = null;
+            startGame();
         };
        
         $scope.solve = function(straight) {
@@ -174,11 +189,12 @@
             };
             $scope.sudoku.current = null;
             $scope.sudoku.base = s;
-            game = {
-                revealUsed: 0,
-                difficulty: $scope.difficulty,
-                timeStart: Date.now() 
-            };
+            $http.post(collectUrl + '?action=generation', {
+                grid: s.toString(),
+                time: t || null,
+                params: params
+            });
+            startGame();
         };
         
         $scope.peep = function() {            
@@ -200,6 +216,11 @@
             $scope.diag = { message: 'user-solved' };
             if (game && $scope.sudoku.base) {
                 s = (Date.now() - game.timeStart) / 1000;
+                send('solved', {
+                    grid: $scope.sudoku.base.toString(),
+                    time: s,
+                    game: game
+                });
                 m = Math.floor(s / 60);
                 s = Math.floor(s % 60);
                 $scope.diag.game = {
