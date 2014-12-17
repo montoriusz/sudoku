@@ -32,41 +32,46 @@ var Sudoku = (function() {
         }
     }
     
+    Sudoku.ROW = 0;
+    Sudoku.COL = 1;
+    Sudoku.BOX = 2;
+    
     function genAreas () {
         var n, b, i, j, list, list2;
-        Sudoku.areas = {
-            rows: new Array(9),
-            cols: new Array(9),
-            boxes: new Array(9)
-        };
+        Sudoku.areas = [
+            new Array(9),
+            new Array(9),
+            new Array(9)
+        ];
         for (n = 0; n < 9; ++n) {
+            // Rows & cols
+            Sudoku.areas[Sudoku.ROW][n] = list = new Array(9);
+            Sudoku.areas[Sudoku.COL][n] = list2 = new Array(9);
+            b = n * 9;
+            for (var i = 0; i < 9; ++i) {
+                list[i] = b + i;
+                list2[i] = n + i * 9;
+            }
             // Boxes
-            Sudoku.areas.boxes[n] = list = new Array(9);
+            Sudoku.areas[Sudoku.BOX][n] = list = new Array(9);
             b = Math.floor(n / 3) * 27 + (n % 3) * 3;
             for (var i = 0; i < 3; ++i) {
                 for (var j = 0; j < 3; ++j) {
                     list[i * 3 + j] = b + i * 9 + j;
                 }
             }
-
-            // Rows & cols
-            Sudoku.areas.rows[n] = list = new Array(9);
-            Sudoku.areas.cols[n] = list2 = new Array(9);
-            b = n * 9;
-            for (var i = 0; i < 9; ++i) {
-                list[i] = b + i;
-                list2[i] = n + i * 9;
-            }
         }
     }
     
     Sudoku.cellAreas = function(c) {
-        return {
-            row: Sudoku.areas.rows[Math.floor(c / 9)],
-            col: Sudoku.areas.cols[Math.floor(c % 9)],
-            box: Sudoku.areas.boxes[Math.floor(c / 27) * 3 + Math.floor(c / 3) % 3]
-        };
+        return [
+            Sudoku.areas[Sudoku.ROW][Math.floor(c / 9)],
+            Sudoku.areas[Sudoku.COL][Math.floor(c % 9)],
+            Sudoku.areas[Sudoku.BOX][Math.floor(c / 27) * 3 + Math.floor(c / 3) % 3]
+        ];
     };
+    
+    
     
     Sudoku.fromString = function(str) {
         var i, s, v;
@@ -96,10 +101,10 @@ var Sudoku = (function() {
     }
     
     function markCellAreas(c, bit) {
-        var k, areas = Sudoku.cellAreas(c);
+        var i, areas = Sudoku.cellAreas(c);
         bit = ~bit;
-        for (k in areas) {
-            applyMask.call(this, areas[k], bit);
+        for (i = 0; i < 3; ++i) {
+            applyMask.call(this, areas[i], bit);
         }
     }
     
@@ -222,15 +227,15 @@ var Sudoku = (function() {
     };
 
     Sudoku.prototype.solveStraight = function(search, steps) {
-        var complete_before;
+        var complete_before, i, j;
         steps  = steps || null;
         search = search || 3;
         do {
             complete_before = this.complete;
-            for (var i = 0; i < 9; i++) {
-                solveArea.call(this, Sudoku.areas.rows[i], search);
-                solveArea.call(this, Sudoku.areas.cols[i], search);
-                solveArea.call(this, Sudoku.areas.boxes[i], search);
+            for (i = 0; i < 9; ++i) {
+                for (j = 0; j < 3; ++j) {
+                    solveArea.call(this, Sudoku.areas[j][i], search);
+                }
             }
             if (steps !== null) --steps;
         } while (this.complete > complete_before && (steps === null || steps > 0));

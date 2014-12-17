@@ -201,7 +201,7 @@
         }
         
         GridCtrl.prototype.highlight = function(val, targetIdx) {
-            var input, areas, i, k;
+            var input, areas, i, j;
             this.inputs.removeClass('hb').removeClass('hl');
             if (val) {
                 for (i = 0; i < this.inputs.length; ++i) {
@@ -213,9 +213,9 @@
             } else {
                 if (typeof targetIdx === 'number') {
                     areas = Sudoku.cellAreas(targetIdx);
-                    for (k in areas) if (k !== 'box') {
-                        for (i = 0; i < areas[k].length; ++i) /*if (areas[k][i] !== targetIdx)*/ {
-                            this.inputs.eq(areas[k][i]).addClass('hb');
+                    for (j = 0; j < 3; ++j) if (j !== Sudoku.BOX) {
+                        for (i = 0; i < areas[j].length; ++i) /*if (areas[j][i] !== targetIdx)*/ {
+                            this.inputs.eq(areas[j][i]).addClass('hb');
                         }
                     }
                 }
